@@ -7,13 +7,13 @@
 
 
 (defn draw-predator [predator]
-	(stroke 235 0 0)
-	(fill 235 0 0)
+	(stroke 235 0 235)
+	(fill 235 0 235)
 	(ellipse (:x predator) (:y predator) (:radius predator) (:radius predator)))
 
 (defn draw-prey [prey]
-	(stroke 0 235 0)
-	(fill 0 235 0)
+	(stroke 0 100 235)
+	(fill 0 100 235)
 	(ellipse (:x prey) (:y prey) (:radius prey) (:radius prey))
 )
 
@@ -31,7 +31,7 @@
 	"Runs once."
 	(smooth)
 	(no-stroke)
-(framerate 60))
+(framerate 1))
 
 (defapplet predators :title "Predators and Prey"
 :setup setup :draw draw :size [screen-size screen-size])

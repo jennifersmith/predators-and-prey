@@ -1,5 +1,6 @@
 (ns predators-and-prey.simulation
 	(:use predators-and-prey.constants)
+	(:use predators-and-prey.vectors)
 	(:use predators-and-prey.collisions))
 
 (def predator {:max-velocity 7 :radius 10})
@@ -24,17 +25,25 @@
 	(create-predator (- screen-size 100) (- screen-size 100) -4 -4)]
 	:prey (take 50 (repeatedly (prey-generator screen-size)))})
 
-(defn move [animal]
+(defn move [animal target]
 	(let [x (:x animal) y (:y animal)
-	vx (:vx animal) vy (:vy animal)]
+	new-velocity (sub target (coords animal))
+	targetx (:x target) targety (:y target)
+	[vx vy] new-velocity]
 	(assoc animal :x (mod (+ x vx) screen-size) :y (mod (+ y vy) screen-size))))
+
+(defn target [predator prey]
+	(coords (find-prey predator prey)))
 
 (defn surviving? [predators]
 	(fn [prey]
 		(if (nil? (some #(collides? prey %) predators)) true false)))
 
+(defn find-prey [predator prey]
+	(first(sort-by (fn [prey] (len (coords prey) (coords predator))) prey)))
+
 (defn think [current-state]
-	(let [new-predators (map move (:predators current-state))
+	(let [new-predators (map (fn [predator] (move predator (target predator (:prey current-state)))) (:predators current-state))
 		remaining-prey (filter (surviving? new-predators) (:prey current-state))]
 	( -> @animals
 		(assoc :predators new-predators :prey remaining-prey))))
