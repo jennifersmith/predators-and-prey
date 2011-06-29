@@ -42,15 +42,16 @@
 	(fn [prey]
 		(if (nil? (some #(collides? prey %) predators)) true false)))
 
-
+(defn replenish-prey [current-prey]
+  (let [prey-to-add (if (< (count current-prey) minimum-prey) replenish-amount 0)]
+   (concat current-prey  (take prey-to-add (repeatedly (prey-generator screen-size))))))
 (defn think [current-state]
 	(let [new-predators (map (fn [predator] (move predator (target predator (:prey current-state)))) (:predators current-state))
 		prey-count (count (:prey current-state))
 		remaining-prey (filter (surviving? new-predators) (:prey current-state))]
 	( -> @animals
-		(assoc :predators new-predators
-		:prey (concat remaining-prey (take (- minimum-prey prey-count) (repeatedly (prey-generator screen-size))))))))
-
+    (assoc :prey (replenish-prey remaining-prey))
+		(assoc :predators new-predators))))
 (defn pulse []
 	(let [bounded-screen-size (- screen-size 20)]
 	(if (empty? (:prey @animals))

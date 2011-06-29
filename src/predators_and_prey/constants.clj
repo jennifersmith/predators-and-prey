@@ -2,4 +2,5 @@
 
 (def screen-size 800)
 
-(def minimum-prey 10)
+(def minimum-prey 5)
+(def replenish-amount 20)
