@@ -32,6 +32,9 @@
 	[vx vy] new-velocity]
 	(assoc animal :x (mod (+ x vx) screen-size) :y (mod (+ y vy) screen-size))))
 
+(defn find-prey [predator prey]
+	(first(sort-by (fn [prey] (len (coords prey) (coords predator))) prey)))
+
 (defn target [predator prey]
 	(coords (find-prey predator prey)))
 
@@ -39,17 +42,17 @@
 	(fn [prey]
 		(if (nil? (some #(collides? prey %) predators)) true false)))
 
-(defn find-prey [predator prey]
-	(first(sort-by (fn [prey] (len (coords prey) (coords predator))) prey)))
 
 (defn think [current-state]
 	(let [new-predators (map (fn [predator] (move predator (target predator (:prey current-state)))) (:predators current-state))
+		prey-count (count (:prey current-state))
 		remaining-prey (filter (surviving? new-predators) (:prey current-state))]
 	( -> @animals
-		(assoc :predators new-predators :prey remaining-prey))))
+		(assoc :predators new-predators
+		:prey (concat remaining-prey (take (- minimum-prey prey-count) (repeatedly (prey-generator screen-size))))))))
 
 (defn pulse []
 	(let [bounded-screen-size (- screen-size 20)]
-	(if (empty? @animals)
+	(if (empty? (:prey @animals))
 		(reset! animals (initial-state))
 		(swap! animals think))))
